@@ -1,5 +1,7 @@
 # maze.py
 
+import copy  # Importamos el módulo copy para hacer copias profundas
+
 class Node:
     def __init__(self, state, parent, action):
         self.state = state
@@ -37,22 +39,22 @@ class QueueFrontier(StackFrontier):
 
 class Maze:
     def __init__(self, filename):
-        # Read file and set up maze
+        # Leer el archivo y configurar el laberinto
         with open(filename) as f:
             contents = f.read()
 
-        # Validate start and goal
+        # Validar punto de inicio y objetivo
         if contents.count("A") != 1:
-            raise Exception("Maze must have exactly one start point")
+            raise Exception("El laberinto debe tener exactamente un punto de inicio 'A'")
         if contents.count("B") != 1:
-            raise Exception("Maze must have exactly one goal point")
+            raise Exception("El laberinto debe tener exactamente un punto objetivo 'B'")
 
-        # Determine height and width
+        # Determinar altura y anchura
         contents = contents.splitlines()
         self.height = len(contents)
         self.width = max(len(line) for line in contents)
 
-        # Create walls grid
+        # Crear la cuadrícula de paredes
         self.walls = []
         for i in range(self.height):
             row = []
@@ -113,30 +115,33 @@ class Maze:
         return result
 
     def solve(self, method="DFS"):
-        """Finds a solution to the maze using the specified method."""
-        self.num_explored = 0
+        """Encuentra una solución al laberinto usando el método especificado ('DFS' o 'BFS')."""
+        # Hacer una copia profunda de la instancia actual
+        copy_maze = copy.deepcopy(self)
 
-        # Initialize frontier
-        start = Node(state=self.start, parent=None, action=None)
+        # Inicializar contadores y conjuntos
+        copy_maze.num_explored = 0
+        copy_maze.explored = set()
+
+        # Inicializar frontera
+        start_node = Node(state=copy_maze.start, parent=None, action=None)
         if method == "DFS":
             frontier = StackFrontier()
         elif method == "BFS":
             frontier = QueueFrontier()
         else:
-            raise ValueError("Method must be 'DFS' or 'BFS'")
-
-        frontier.add(start)
-        self.explored = set()
+            raise ValueError("El método debe ser 'DFS' o 'BFS'")
+        frontier.add(start_node)
 
         while True:
             if frontier.empty():
-                raise Exception("No solution")
+                raise Exception("No hay solución para este laberinto")
 
             node = frontier.remove()
-            self.num_explored += 1
+            copy_maze.num_explored += 1
 
-            if node.state == self.goal:
-                # Found the solution
+            if node.state == copy_maze.goal:
+                # Se encontró la solución
                 actions = []
                 cells = []
                 while node.parent:
@@ -145,13 +150,13 @@ class Maze:
                     node = node.parent
                 actions.reverse()
                 cells.reverse()
-                self.solution = (actions, cells)
-                return self  # Return self to allow chaining
+                copy_maze.solution = (actions, cells)
+                return copy_maze  # Devolvemos la copia resuelta
 
-            self.explored.add(node.state)
+            copy_maze.explored.add(node.state)
 
-            for action, state in self.neighbors(node.state):
-                if not frontier.contains_state(state) and state not in self.explored:
+            for action, state in copy_maze.neighbors(node.state):
+                if not frontier.contains_state(state) and state not in copy_maze.explored:
                     child = Node(state=state, parent=node, action=action)
                     frontier.add(child)
 

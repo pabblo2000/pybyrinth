@@ -160,7 +160,7 @@ class Maze:
                     child = Node(state=state, parent=node, action=action)
                     frontier.add(child)
 
-    def output_image(self, filename, show_solution=True, show_explored=False):
+    def to_img(self, filename, show_solution=True, show_explored=False):
         from PIL import Image, ImageDraw
 
         cell_size = 50

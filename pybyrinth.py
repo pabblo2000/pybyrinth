@@ -1,5 +1,5 @@
 # maze.py
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 import copy  # Importamos el módulo copy para hacer copias profundas
 
 class Node:

@@ -1,2 +1,3 @@
-img/
+# Ignorar los archivos de dentro de la carpeta img pero no la carpeta en si
+img/*
 __pycache__/

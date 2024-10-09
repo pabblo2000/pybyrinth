@@ -289,6 +289,7 @@ class Maze:
         """Visualiza el laberinto utilizando Matplotlib, con la leyenda opcional fuera del gráfico en la esquina superior derecha."""
         import numpy as np
         import matplotlib.pyplot as plt
+        from matplotlib.colors import ListedColormap
 
         rows = self.height
         cols = self.width
@@ -308,9 +309,18 @@ class Maze:
         goal_y, goal_x = self.goal
         maze_image[goal_y, goal_x] = 0.75  # Otro valor intermedio para diferenciar
 
+        # Mostrar la solución si está disponible
+        if self.solution:
+            solution_path = self.solution[1]  # Obtener la lista de celdas en la solución
+            for (y, x) in solution_path:
+                maze_image[y, x] = 0.25  # Asignar un valor específico para el camino de la solución
+
+        # Crear un mapa de colores personalizado
+        cmap = ListedColormap(['black', 'yellow', 'green', 'red', 'white'])
+
         # Crear la figura y los ejes para el laberinto
         fig, ax = plt.subplots(figsize=(cols * 0.5, rows * 0.5))  # Ajustar el tamaño de la figura según el laberinto
-        ax.imshow(maze_image, cmap="gray", origin="upper")
+        ax.imshow(maze_image, cmap=cmap, origin="upper", vmin=0, vmax=1)
 
         # Añadir marcadores de colores para el inicio y final
         ax.scatter(start_x, start_y, color='green', label='Start (A)', s=100, marker='o')  # Verde para el inicio
@@ -331,7 +341,8 @@ class Maze:
                     plt.Line2D([0], [0], marker='o', color='w', label='Start (A)', markerfacecolor='green', markersize=10),
                     plt.Line2D([0], [0], marker='o', color='w', label='Goal (B)', markerfacecolor='red', markersize=10),
                     plt.Line2D([0], [0], color='white', lw=4, label='Wall (white)'),
-                    plt.Line2D([0], [0], color='black', lw=4, label='Path (black)')
+                    plt.Line2D([0], [0], color='black', lw=4, label='Path (black)'),
+                    plt.Line2D([0], [0], color='yellow', lw=4, label='Solution (yellow)')  # Añadir solución a la leyenda
                 ],
                 loc='center left',
                 bbox_to_anchor=(1.05, 0.5),  # Posicionar la leyenda completamente fuera del área del gráfico
@@ -347,8 +358,6 @@ class Maze:
         """Muestra una representación visual del laberinto al evaluar la variable en una celda de Jupyter."""
         self.show(label=True)  # Llamar a show con label=True para mostrar la leyenda
         return ""
-
-
 
 
 def read(filepath):

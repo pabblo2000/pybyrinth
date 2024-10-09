@@ -6,7 +6,7 @@ from setuptools import setup
 
 setup(
     name='pybyrinth',  
-    version='1.2.0',  
+    version='1.2.1',  
     description="A Python library for creating, solving, and visualizing mazes using Depth-First Search (DFS) and Breadth-First Search (BFS) algorithms.",
     long_description=open('README.md', encoding='utf-8').read(),  
     long_description_content_type='text/markdown',  

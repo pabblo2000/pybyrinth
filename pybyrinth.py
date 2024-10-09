@@ -160,31 +160,43 @@ class Maze:
                     child = Node(state=state, parent=node, action=action)
                     frontier.add(child)
 
-    def to_img(self, filename, show_solution=True, show_explored=False):
-        from PIL import Image, ImageDraw
+    def to_img(self, filename, show_solution=True, show_explored=False, label=True):
+        from PIL import Image, ImageDraw, ImageFont
 
         cell_size = 50
         cell_border = 2
+        label_height = 100 if label else 0  # Incrementar la altura de la etiqueta
+        img_width = self.width * cell_size
+        img_height = self.height * cell_size + label_height
         img = Image.new(
-            "RGBA", (self.width * cell_size, self.height * cell_size), "black"
+            "RGBA", (img_width, img_height), "black"
         )
         draw = ImageDraw.Draw(img)
 
         solution = self.solution[1] if self.solution else None
+        used_labels = set()  # Track which labels are used
+
+        # Dibujar el laberinto
         for i, row in enumerate(self.walls):
             for j, col in enumerate(row):
                 if col:
-                    fill = (40, 40, 40)
+                    fill = (30, 30, 30)  # Color de las paredes
+                    used_labels.add("Wall")
                 elif (i, j) == self.start:
-                    fill = (255, 0, 0)
+                    fill = (0, 171, 28)  # Color del inicio
+                    used_labels.add("Start")
                 elif (i, j) == self.goal:
-                    fill = (0, 171, 28)
+                    fill = (255, 0, 0)  # Color del objetivo
+                    used_labels.add("Goal")
                 elif solution and show_solution and (i, j) in solution:
-                    fill = (220, 235, 113)
+                    fill = (220, 235, 113)  # Color del camino de la solución
+                    used_labels.add("Solution")
                 elif show_explored and (i, j) in self.explored:
-                    fill = (212, 97, 85)
+                    fill = (212, 97, 85)  # Color de las celdas exploradas
+                    used_labels.add("Explored")
                 else:
-                    fill = (237, 240, 252)
+                    fill = (177, 177, 177)  # Color de las celdas vacías
+                    used_labels.add("Empty")
 
                 draw.rectangle(
                     [
@@ -200,7 +212,66 @@ class Maze:
                     fill=fill,
                 )
 
+        if label:
+            # Definir los colores de las etiquetas y sus textos
+            label_colors = {
+                "Start": (0, 171, 28),
+                "Goal": (255, 0, 0),
+                "Wall": (30, 30, 30),
+                "Solution": (220, 235, 113),
+                "Explored": (212, 97, 85),
+                "Empty": (177, 177, 177)
+            }
+
+            # Tamaño de fuente por defecto
+            try:
+                font = ImageFont.truetype("arial.ttf", 20)
+            except IOError:
+                font = ImageFont.load_default()
+
+            # Dibujar las etiquetas para los elementos presentes en la imagen
+            label_x = 10  # Posición x inicial para las etiquetas en la izquierda
+            label_y = self.height * cell_size + 10  # Posición y inicial debajo del laberinto
+
+            for idx, (text, color) in enumerate(label_colors.items()):
+                if text in used_labels and text not in ["Solution", "Explored"]:
+                    draw.rectangle(
+                        [
+                            (label_x, label_y + idx * 22),
+                            (label_x + 20, label_y + idx * 22 + 20)
+                        ],
+                        fill=color
+                    )
+                    draw.text((label_x + 30, label_y + idx * 22), text, fill="white", font=font)
+
+            # Dibujar las etiquetas de "Solution" y "Explored" en el lado derecho de la imagen
+            right_label_x = img_width - 180  # Posición más alejada del borde derecho
+            right_label_y = self.height * cell_size + 10
+
+            if "Solution" in used_labels:
+                draw.text((right_label_x, right_label_y), "Solution", fill="white", font=font)
+                draw.rectangle(
+                    [
+                        (right_label_x + 100, right_label_y),
+                        (right_label_x + 120, right_label_y + 20)
+                    ],
+                    fill=label_colors["Solution"]
+                )
+                right_label_y += 30  # Mover hacia abajo para la siguiente etiqueta
+
+            if "Explored" in used_labels:
+                draw.text((right_label_x, right_label_y), "Explored", fill="white", font=font)
+                draw.rectangle(
+                    [
+                        (right_label_x + 100, right_label_y),
+                        (right_label_x + 120, right_label_y + 20)
+                    ],
+                    fill=label_colors["Explored"]
+                )
+
         img.save(filename)
+
+
 
 
 def read(filepath):

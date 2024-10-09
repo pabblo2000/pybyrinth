@@ -2,6 +2,8 @@
 
 from setuptools import setup
 
+from setuptools import setup
+
 setup(
     name='pybyrinth',  
     version='1.2.0',  
@@ -12,6 +14,10 @@ setup(
     author_email='palvaroh2000@gmail.com',  
     license='MIT',  
     py_modules=['pybyrinth'], 
+    install_requires=[
+        'numpy==1.23.5',
+        'matplotlib==3.6.2'
+    ],  
     classifiers=[
         'Programming Language :: Python :: 3',
         'Development Status :: 5 - Production/Stable',
@@ -21,7 +27,7 @@ setup(
     ],
     python_requires='>=3.6',  
     keywords='maze, labyrinth, pathfinding, search, DFS, BFS', 
-    url='https://github.com/pabblo2000/pynacci',  
+    url='https://github.com/pabblo2000/pybyrinth',  
 )
 
 # Para subir la librería a PyPI, ejecuta el siguiente comando en la terminal:

@@ -8,7 +8,6 @@ class Node:
         self.parent = parent
         self.action = action
 
-
 class StackFrontier:
     def __init__(self):
         self.frontier = []
@@ -28,14 +27,12 @@ class StackFrontier:
         else:
             return self.frontier.pop()
 
-
 class QueueFrontier(StackFrontier):
     def remove(self):
         if self.empty():
             raise Exception("Empty frontier")
         else:
             return self.frontier.pop(0)
-
 
 class Maze:
     def __init__(self, filename):
@@ -75,6 +72,8 @@ class Maze:
             self.walls.append(row)
 
         self.solution = None
+        self.steps_count = 0  # Almacena el número de pasos
+        self.visited_steps = []  # Almacena las celdas visitadas en la solución
 
     def __str__(self):
         output = []
@@ -151,6 +150,8 @@ class Maze:
                 actions.reverse()
                 cells.reverse()
                 copy_maze.solution = (actions, cells)
+                copy_maze.steps_count = len(cells)  # Número de pasos
+                copy_maze.visited_steps = cells  # Celdas visitadas
                 return copy_maze  # Devolvemos la copia resuelta
 
             copy_maze.explored.add(node.state)
@@ -159,7 +160,7 @@ class Maze:
                 if not frontier.contains_state(state) and state not in copy_maze.explored:
                     child = Node(state=state, parent=node, action=action)
                     frontier.add(child)
-
+    
     def to_img(self, filename, show_solution=True, show_explored=False, label=True):
         from PIL import Image, ImageDraw, ImageFont
 
@@ -270,6 +271,82 @@ class Maze:
                 )
 
         img.save(filename)
+
+
+    def info(self):
+        """Devuelve la información sobre el número de pasos en la solución."""
+        if self.solution is None:
+            return "El laberinto no ha sido resuelto aún."
+        return f"Número de pasos para resolver el laberinto: {self.steps_count}"
+
+    def steps(self):
+        """Devuelve una lista de las casillas visitadas en la solución."""
+        if self.solution is None:
+            return "El laberinto no ha sido resuelto aún."
+        return self.visited_steps
+    
+    def show(self, title="Maze", label=False):
+        """Visualiza el laberinto utilizando Matplotlib, con la leyenda opcional fuera del gráfico en la esquina superior derecha."""
+        import numpy as np
+        import matplotlib.pyplot as plt
+
+        rows = self.height
+        cols = self.width
+        maze_image = np.ones((rows, cols))  # Creamos una matriz para representar el laberinto (1 para paredes)
+
+        # Llenar la matriz con información del laberinto
+        for y, row in enumerate(self.walls):
+            for x, is_wall in enumerate(row):
+                if not is_wall:
+                    maze_image[y, x] = 0  # Asignamos 0 a los caminos (negro)
+
+        # Poner el inicio (A) en verde
+        start_y, start_x = self.start
+        maze_image[start_y, start_x] = 0.5  # Asignamos un valor intermedio para diferenciar
+
+        # Poner el objetivo (B) en rojo
+        goal_y, goal_x = self.goal
+        maze_image[goal_y, goal_x] = 0.75  # Otro valor intermedio para diferenciar
+
+        # Crear la figura y los ejes para el laberinto
+        fig, ax = plt.subplots(figsize=(cols * 0.5, rows * 0.5))  # Ajustar el tamaño de la figura según el laberinto
+        ax.imshow(maze_image, cmap="gray", origin="upper")
+
+        # Añadir marcadores de colores para el inicio y final
+        ax.scatter(start_x, start_y, color='green', label='Start (A)', s=100, marker='o')  # Verde para el inicio
+        ax.scatter(goal_x, goal_y, color='red', label='Goal (B)', s=100, marker='o')  # Rojo para el objetivo
+
+        # Eliminar marcas de los ejes y poner título
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.set_title(title)
+
+        if label:
+            # Ajustar los márgenes para hacer espacio para la leyenda fuera del gráfico
+            plt.subplots_adjust(right=0.75)  # Dejar espacio a la derecha
+
+            # Configurar la leyenda fuera del gráfico en la esquina superior derecha
+            ax.legend(
+                handles=[
+                    plt.Line2D([0], [0], marker='o', color='w', label='Start (A)', markerfacecolor='green', markersize=10),
+                    plt.Line2D([0], [0], marker='o', color='w', label='Goal (B)', markerfacecolor='red', markersize=10),
+                    plt.Line2D([0], [0], color='white', lw=4, label='Wall (white)'),
+                    plt.Line2D([0], [0], color='black', lw=4, label='Path (black)')
+                ],
+                loc='center left',
+                bbox_to_anchor=(1.05, 0.5),  # Posicionar la leyenda completamente fuera del área del gráfico
+                borderaxespad=0,  # Sin espacio adicional entre el gráfico y la leyenda
+                frameon=True  # Mostrar el recuadro alrededor de la leyenda
+            )
+
+        plt.show()
+
+
+
+    def __repr__(self):
+        """Muestra una representación visual del laberinto al evaluar la variable en una celda de Jupyter."""
+        self.show(label=True)  # Llamar a show con label=True para mostrar la leyenda
+        return ""
 
 
 

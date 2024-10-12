@@ -1,5 +1,5 @@
 # maze.py
-__version__ = "1.2.1"
+__version__ = "1.2.2"
 import copy  # Importamos el módulo copy para hacer copias profundas
 
 class Node:
@@ -218,10 +218,10 @@ class Maze:
             label_colors = {
                 "Start": (0, 171, 28),
                 "Goal": (255, 0, 0),
-                "Wall": (30, 30, 30),
+                "Wall": (177, 177, 177),
                 "Solution": (220, 235, 113),
                 "Explored": (212, 97, 85),
-                "Empty": (177, 177, 177)
+                "Empty": (30, 30, 30)
             }
 
             # Tamaño de fuente por defecto
@@ -316,7 +316,7 @@ class Maze:
                 maze_image[y, x] = 0.25  # Asignar un valor específico para el camino de la solución
 
         # Crear un mapa de colores personalizado
-        cmap = ListedColormap(['black', 'yellow', 'green', 'red', 'white'])
+        cmap = ListedColormap(['white', 'yellow', 'green', 'red', 'black'])
 
         # Crear la figura y los ejes para el laberinto
         fig, ax = plt.subplots(figsize=(cols * 0.5, rows * 0.5))  # Ajustar el tamaño de la figura según el laberinto
@@ -340,8 +340,8 @@ class Maze:
                 handles=[
                     plt.Line2D([0], [0], marker='o', color='w', label='Start (A)', markerfacecolor='green', markersize=10),
                     plt.Line2D([0], [0], marker='o', color='w', label='Goal (B)', markerfacecolor='red', markersize=10),
-                    plt.Line2D([0], [0], color='white', lw=4, label='Wall (white)'),
-                    plt.Line2D([0], [0], color='black', lw=4, label='Path (black)'),
+                    plt.Line2D([0], [0], color='white', lw=4, label='Path (white)'),
+                    plt.Line2D([0], [0], color='black', lw=4, label='Wall (black)'),
                     plt.Line2D([0], [0], color='yellow', lw=4, label='Solution (yellow)')  # Añadir solución a la leyenda
                 ],
                 loc='center left',
